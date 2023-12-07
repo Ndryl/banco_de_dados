@@ -2,77 +2,69 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(void) {
-    char **vetor;
-    char input[100];
-    int num_referencia = 0;
-    int num_coluna = 5;
-    int etiqueta = 0;
+// Definição do enum para os tipos de variáveis
+enum TipoVariavel {
+    INTEIRO,
+    CARACTER,
+    REAL,
+    STRING,
+};
 
-    vetor = (char **)malloc(num_coluna * sizeof(char *));
+struct id_pessoa {
+    int id;
+    char tabela[50]; 
+    enum TipoVariavel tipo; // Utilizando o enum para definir o tipo de variável
+    void *pessoa;
+};
+typedef struct id_pessoa id_pessoa;
 
-    if (vetor == NULL) {
-        printf("Algo deu errado\n");
-        return 1;
-    }
+// ... (outras funções, se houver)
 
-    printf("Digite os atributos da tabela a serem adicionados ou 'fim' para encerrar a atribuição:\n");
-    while (1) {
-        fgets(input, sizeof(input), stdin);
-        input[strcspn(input, "\n")] = '\0'; // Remove o caractere de nova linha, se houver
+int main() {
+    int coluna;
+    char referencia[50];
+    id_pessoa *vetor_principal;
 
-        if (strcmp(input, "fim") == 0) {
-            vetor[num_referencia] = (char *)malloc((sizeof(char) * 10)); // Alocando espaço suficiente para armazenar o número
-            sprintf(vetor[num_referencia], "%d", etiqueta);
-            num_referencia++;
-            etiqueta++;
-            break; // Sai do loop se o usuário digitar 'fim'
+    printf("Digite quantas colunas a tabela vai ter: ");
+    scanf("%d", &coluna);
+    vetor_principal = (id_pessoa *)malloc(coluna * sizeof(id_pessoa));
+    vetor_principal[0].id = 0;
+
+    for(int i = 0; i < coluna; i++) {
+        printf("Digite o nome da coluna %d: ", i+1);
+        scanf("%s", referencia);
+        strcpy(vetor_principal[i].tabela, referencia);
+
+        printf("Digite o tipo da coluna %d (inteiro = 0, caracter = 1, real = 2, string = 3): ", i+1);
+        int tipo;
+        scanf("%d", &tipo);
+
+        // Definindo o tipo com base no enum de TipoVariavel
+        switch (tipo) {
+            case 0:
+                vetor_principal[i].tipo = INTEIRO;
+                vetor_principal[i].pessoa = malloc(sizeof(int));
+                break;
+            case 1:
+                vetor_principal[i].tipo = CARACTER;
+                vetor_principal[i].pessoa = malloc(sizeof(char));
+                break;
+            case 2:
+                vetor_principal[i].tipo = REAL;
+                vetor_principal[i].pessoa = malloc(sizeof(float));
+                break;
+          case 3:
+                vetor_principal[i].tipo = STRING;
+                vetor_principal[i].pessoa = malloc(sizeof(char)*50);
+                break;
+            default:
+                printf("Tipo inválido!\n");
+                // Você pode tratar isso como desejar, como pedir o tipo novamente ou sair do programa.
+                break;
         }
-
-        vetor[num_referencia] = (char *)malloc((strlen(input) + 1) * sizeof(char));
-
-        if (vetor[num_referencia] == NULL) {
-            printf("Erro ao alocar memória.\n");
-            return 1;
-        }
-
-        strcpy(vetor[num_referencia], input);
-        num_referencia++;
-
-        if (num_referencia >= num_coluna) {
-            num_coluna += 5;
-            vetor = (char **)realloc(vetor, num_coluna * sizeof(char *));
-
-            if (vetor == NULL) {
-                printf("Erro ao alocar memória.\n");
-                return 1;
-            }
-        }
     }
 
-    // Salvando a lista no arquivo
-    FILE *arquivo;
-    arquivo = fopen("lista_atributos.txt", "w"); // Abre o arquivo para escrita
-
-    if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return 1;
-    }
-
-    // Escrevendo a lista no arquivo
-    for (int i = 0; i < num_referencia; i++) {
-        fprintf(arquivo, "Atributo %d: %s\n", i + 1, vetor[i]);
-    }
-
-    fclose(arquivo); // Fecha o arquivo
-
-    printf("Lista de atributos salva com sucesso no arquivo 'lista_atributos.txt'.\n");
-
-    // Liberando memória alocada
-    for (int i = 0; i < num_referencia; i++) {
-        free(vetor[i]);
-    }
-    free(vetor);
+    // Resto do seu código aqui
 
     return 0;
 }
