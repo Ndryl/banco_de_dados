@@ -1,70 +1,73 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
-// Definição do enum para os tipos de variáveis
-enum TipoVariavel {
-    INTEIRO,
-    CARACTER,
-    REAL,
-    STRING,
+struct coluna_nome {
+  char nome_coluna[50];
+  void *vetor_coluna;
 };
+typedef struct coluna_nome coluna_nome;
 
-struct id_pessoa {
-    int id;
-    char tabela[50]; 
-    enum TipoVariavel tipo; // Utilizando o enum para definir o tipo de variável
-    void *pessoa;
+struct linha_id {
+  int id;
+  coluna_nome *vetor_coluna; // Agora é um vetor de coluna_nome
 };
-typedef struct id_pessoa id_pessoa;
+typedef struct linha_id linha_id;
 
-// ... (outras funções, se houver)
+int main(void) {
+  int coluna;
+  int linha;
+  char referencia[50];
+  linha_id *vetor_primario;
 
-int main() {
-    int coluna;
-    char referencia[50];
-    id_pessoa *vetor_principal;
+  printf("Digite o número de linhas da tabela: ");
+  scanf("%d", &linha);
 
-    printf("Digite quantas colunas a tabela vai ter: ");
-    scanf("%d", &coluna);
-    vetor_principal = (id_pessoa *)malloc(coluna * sizeof(id_pessoa));
-    vetor_principal[0].id = 0;
+  vetor_primario = malloc(linha * sizeof(linha_id));
+  for (int i = 0; i < linha; i++) {
+    vetor_primario[i].id = i;
+    // Aloca um vetor de coluna_nome para cada linha
+    vetor_primario[i].vetor_coluna = malloc(sizeof(coluna_nome) * coluna);
+  }
 
-    for(int i = 0; i < coluna; i++) {
-        printf("Digite o nome da coluna %d: ", i+1);
-        scanf("%s", referencia);
-        strcpy(vetor_principal[i].tabela, referencia);
+  printf("Digite o número de colunas da tabela: ");
+  scanf("%d", &coluna);
 
-        printf("Digite o tipo da coluna %d (inteiro = 0, caracter = 1, real = 2, string = 3): ", i+1);
-        int tipo;
-        scanf("%d", &tipo);
-
-        // Definindo o tipo com base no enum de TipoVariavel
-        switch (tipo) {
-            case 0:
-                vetor_principal[i].tipo = INTEIRO;
-                vetor_principal[i].pessoa = malloc(sizeof(int));
-                break;
-            case 1:
-                vetor_principal[i].tipo = CARACTER;
-                vetor_principal[i].pessoa = malloc(sizeof(char));
-                break;
-            case 2:
-                vetor_principal[i].tipo = REAL;
-                vetor_principal[i].pessoa = malloc(sizeof(float));
-                break;
-          case 3:
-                vetor_principal[i].tipo = STRING;
-                vetor_principal[i].pessoa = malloc(sizeof(char)*50);
-                break;
-            default:
-                printf("Tipo inválido!\n");
-                // Você pode tratar isso como desejar, como pedir o tipo novamente ou sair do programa.
-                break;
-        }
+  for (int i = 0; i < coluna; i++) {
+    printf("Digite o nome da coluna %d: ", i + 1);
+    scanf("%s", referencia);
+    for (int j = 0; j < linha; j++) {
+      strcpy(vetor_primario[j].vetor_coluna[i].nome_coluna, referencia);
     }
+  }
 
-    // Resto do seu código aqui
+  for (int i = 0; i < coluna; i++) {
+    printf("Digite o tipo de dados da coluna %d (1 = inteiro, 2 = float, 3 = char, 4 = string): ", i + 1);
+    int escolha;
+    scanf("%d", &escolha);
+    for (int j = 0; j < linha; j++) {
+      switch(escolha) {
+        case 1:
+          vetor_primario[j].vetor_coluna[i].vetor_coluna = malloc(sizeof(int) * coluna);
+          break;
+        case 2:
+          vetor_primario[j].vetor_coluna[i].vetor_coluna = malloc(sizeof(float) * coluna);
+          break;
+        case 3:
+          vetor_primario[j].vetor_coluna[i].vetor_coluna = malloc(sizeof(char) * coluna);
+          break;
+        case 4:
+          vetor_primario[j].vetor_coluna[i].vetor_coluna = malloc(sizeof(char) * 50 * coluna);
+          break;
+        default:
+          printf("Escolha inválida!\n");
+          break;
+      }
+    }
+  }
 
-    return 0;
+  // Aqui você pode prosseguir com o restante do seu código
+  // ...
+
+  return 0;
 }
